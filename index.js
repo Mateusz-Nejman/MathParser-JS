@@ -135,7 +135,7 @@ class MathBuffer {
                 let leftTemp = temp.substr(0, a - leftSide.length);
                 let rightTemp = temp.substr(a + 1 + rightSide.length);
 
-                leftSide = leftSide.Length == 0 ? "1" : leftSide;
+                leftSide = leftSide.length == 0 ? "1" : leftSide;
 
                 temp = leftTemp + "[" + leftSide + ";" + rightSide + "]" + rightTemp;
             }
