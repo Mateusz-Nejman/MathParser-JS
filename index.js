@@ -5,7 +5,7 @@ const POW = '^';
 const LeftSide = (text, startIndex, withBracket = false) => {
     const validChars = "1234567890.,";
 
-    if (text.charAt(startIndex - 1) == ')' || text.charAt(startIndex - 1) == ']') {
+    if (text.charAt(startIndex - 1) == ')' || text.charAt(startIndex - 1) == ']' || text.charAt(startIndex - 1) == '>') {
         return GetBracketContentLeft(text, startIndex, withBracket);
     }
     else {
@@ -28,7 +28,7 @@ const LeftSide = (text, startIndex, withBracket = false) => {
 const RightSide = (text, startIndex, withBracket = false) => {
     const validChars = "1234567890.,";
 
-    if (text.charAt(startIndex + 1) == '(' || text.charAt(startIndex + 1) == '[') {
+    if (text.charAt(startIndex + 1) == '(' || text.charAt(startIndex + 1) == '[' || text.charAt(startIndex + 1) == '<') {
         return GetBracketContentRight(text, startIndex, withBracket);
     }
     else {
@@ -52,9 +52,9 @@ const GetBracketContentLeft = (text, startIndex, withBracket = false) => {
     let bracketId = 0;
 
     for (let a = startIndex; a > 0; a--) {
-        if (text.charAt(a) == ')' || text.charAt(a) == ']')
+        if (text.charAt(a) == ')' || text.charAt(a) == ']' || text.charAt(a) == '>')
             bracketId++;
-        else if (text.charAt(a) == '(' || text.charAt(a) == '[') {
+        else if (text.charAt(a) == '(' || text.charAt(a) == '[' || text.charAt(a) == '<') {
             bracketId--;
             if (bracketId == 0)
                 return text.substr(a + (withBracket ? 0 : 1), startIndex - a - (withBracket ? 0 : 2));
@@ -69,9 +69,9 @@ const GetBracketContentRight = (text, startIndex, withBracket = false) => {
     let bracketId = 0;
 
     for (let a = startIndex; a < text.length; a++) {
-        if (text.charAt(a) == '(' || text.charAt(a) == '[')
+        if (text.charAt(a) == '(' || text.charAt(a) == '[' || text.charAt(a) == '<')
             bracketId++;
-        else if (text.charAt(a) == ')' || text.charAt(a) == ']') {
+        else if (text.charAt(a) == ')' || text.charAt(a) == ']' || text.charAt(a) == '>') {
             bracketId--;
             if (bracketId == 0)
                 return text.substr(startIndex + (withBracket ? 1 : 2), a - startIndex - (withBracket ? 0 : 2));
@@ -117,81 +117,107 @@ class MathBuffer {
         return this.buffer;
     }
 
-    ChangeSqrtToFunction(text = "")
-    {
+    ChangeToFunction(text = "") {
         let temp = text.length == 0 ? this.buffer : text;
-        temp = temp.replace('x','*');
+        temp = temp.replace('x', '*');
 
-        while(true)
-        {
-            if(temp.includes(SQRT))
-            {
+        for (let a = 0; a < temp.length; a++) {
+            if (temp.charAt(a) == SQRT) {
+                let leftSide = LeftSide(temp, a, true);
+                let rightSide = RightSide(temp, a, true);
+                let leftTemp = temp.substr(0, a - leftSide.length);
+                let rightTemp = temp.substr(a + 1 + rightSide.length);
+
+                if (leftSide.length > 0)
+                    leftSide += "*";
+
+                temp = leftTemp + leftSide + "[" + rightSide + "]" + rightTemp;
+            }
+            else if (temp.charAt(a) == POW) {
+                let leftSide = LeftSide(temp, a, true);
+                let rightSide = RightSide(temp, a, true);
+                let leftTemp = temp.substr(0, a - leftSide.length);
+                let rightTemp = temp.substr(a + 1 + rightSide.length);
+
+                if (leftSide.length > 0)
+                    leftSide += "*";
+
+                temp = leftTemp + "<" + leftSide + "," + rightSide + ">" + rightTemp;
+            }
+        }
+
+        temp = temp.replace("[", "Math.Sqrt(").replace("]", ")").replace("<", "Math.Pow(").replace(">", ")");
+
+        return temp;
+    }
+
+    ChangeSqrtToFunction(text = "") {
+        let temp = text.length == 0 ? this.buffer : text;
+        temp = temp.replace('x', '*');
+
+        while (true) {
+            if (temp.includes(SQRT)) {
                 let currentIndex = temp.indexOf(SQRT);
-                let leftSide = LeftSide(temp,currentIndex,true);
-                let rightSide = RightSide(temp,currentIndex,true);
-                let leftTemp = temp.substr(0,currentIndex-leftSide.length);
+                let leftSide = LeftSide(temp, currentIndex, true);
+                let rightSide = RightSide(temp, currentIndex, true);
+                let leftTemp = temp.substr(0, currentIndex - leftSide.length);
                 let rightTemp = temp.substr(currentIndex + 1 + rightSide.length);
 
-                if(leftSide.length > 0)
-                leftSide += "*";
+                if (leftSide.length > 0)
+                    leftSide += "*";
 
                 temp = leftTemp + leftSide + "[" + rightSide + "]" + rightTemp;
             }
             else
-            break;
+                break;
         }
 
-        temp = temp.replace("[","Math.sqrt(").replace("]",")");
+        temp = temp.replace("[", "Math.sqrt(").replace("]", ")");
 
         return temp;
     }
 
-    ChangePowToFunction(text = "")
-    {
+    ChangePowToFunction(text = "") {
         let temp = text.length == 0 ? this.buffer : text;
-        temp = temp.replace('x','*');
+        temp = temp.replace('x', '*');
 
-        while(true)
-        {
-            if(temp.includes(POW))
-            {
+        while (true) {
+            if (temp.includes(POW)) {
                 let currentIndex = temp.indexOf(POW);
-                let leftSide = LeftSide(temp,currentIndex,true);
-                let rightSide = RightSide(temp,currentIndex,true);
-                let leftTemp = temp.substr(0,currentIndex-leftSide.length);
+                let leftSide = LeftSide(temp, currentIndex, true);
+                let rightSide = RightSide(temp, currentIndex, true);
+                let leftTemp = temp.substr(0, currentIndex - leftSide.length);
                 let rightTemp = temp.substr(currentIndex + 1 + rightSide.length);
 
-                if(leftSide.length > 0)
-                leftSide += "*";
+                if (leftSide.length > 0)
+                    leftSide += "*";
 
-                temp = leftTemp + "[" + leftSide + ","+rightSide + "]" + rightTemp;
+                temp = leftTemp + "[" + leftSide + "," + rightSide + "]" + rightTemp;
             }
             else
-            break;
+                break;
         }
 
-        temp = temp.replace("[","Math.pow(").replace("]",")");
+        temp = temp.replace("[", "Math.pow(").replace("]", ")");
 
         return temp;
     }
 
-    Eval()
-    {
-        const lastChar = this.buffer.charAt(this.buffer.length-1);
+    Eval() {
+        const lastChar = this.buffer.charAt(this.buffer.length - 1);
 
-        if(this.signs.includes(lastChar))
-            this.buffer = this.buffer.substr(0,this.buffer.length-1);
+        if (this.signs.includes(lastChar))
+            this.buffer = this.buffer.substr(0, this.buffer.length - 1);
 
-        try
-        {
+        try {
             return eval(this.ChangeSqrtToFunction(this.ChangePowToFunction()));
         }
         catch
         {
             return "Błąd";
         }
-        
+
     }
 }
 
-export {SQRT, POW, LeftSide, RightSide, GetBracketContentLeft, GetBracketContentRight, MathBuffer}
+export { SQRT, POW, LeftSide, RightSide, GetBracketContentLeft, GetBracketContentRight, MathBuffer }

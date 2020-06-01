@@ -1,6 +1,6 @@
 {
-  "name": "mathparser-js",
-  "version": "1.0.0",
+  "name": "@mateusznejman/mathparser-js",
+  "version": "1.0.1",
   "description": "Simple Mathematical string parser.",
   "main": "index.js",
   "scripts": {
