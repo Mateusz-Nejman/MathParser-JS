@@ -90,6 +90,12 @@ class MathBuffer {
     Add(text) {
         const validChars = `1234567890()+-*x/${SQRT}${POW}.${PI}%`;
 
+        for(let a = 0; a < text.length; a ++)
+        {
+            if(!validChars.includes(text.charAt(a)))
+                return this.buffer;
+        }
+
         if (validChars.includes(text)) {
             if (this.buffer.length > 1) {
                 let leftSide = LeftSide(this.buffer, this.buffer.length);
@@ -175,7 +181,7 @@ class MathBuffer {
             catch
             {
                 console.log("Error " + this.ChangeToFunction(temp));
-                return "Błąd";
+                return "Error";
             }
         }
         else {
@@ -190,7 +196,7 @@ class MathBuffer {
             catch
             {
                 console.log("Error " + this.ChangeToFunction());
-                return "Błąd";
+                return "Error";
             }
         }
 
