@@ -1,0 +1,28 @@
+{
+  "name": "mathparser-js",
+  "version": "1.0.0",
+  "description": "Simple Mathematical string parser.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mateusz-Nejman/MathParser-JS.git"
+  },
+  "keywords": [
+    "math",
+    "parser",
+    "js",
+    "sqrt",
+    "pow",
+    "Mateusz",
+    "Nejman"
+  ],
+  "author": "Mateusz Nejman",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mateusz-Nejman/MathParser-JS/issues"
+  },
+  "homepage": "https://github.com/Mateusz-Nejman/MathParser-JS#readme"
+}
