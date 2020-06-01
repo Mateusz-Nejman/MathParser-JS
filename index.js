@@ -3,7 +3,7 @@ const SQRT = '√';
 const POW = '^';
 
 const LeftSide = (text, startIndex, withBracket = false) => {
-    const validChars = "1234567890.,";
+    const validChars = "1234567890.,;";
 
     if (text.charAt(startIndex - 1) == ')' || text.charAt(startIndex - 1) == ']' || text.charAt(startIndex - 1) == '>') {
         return GetBracketContentLeft(text, startIndex, withBracket);
@@ -26,7 +26,7 @@ const LeftSide = (text, startIndex, withBracket = false) => {
 }
 
 const RightSide = (text, startIndex, withBracket = false) => {
-    const validChars = "1234567890.,";
+    const validChars = "1234567890.,;";
 
     if (text.charAt(startIndex + 1) == '(' || text.charAt(startIndex + 1) == '[' || text.charAt(startIndex + 1) == '<') {
         return GetBracketContentRight(text, startIndex, withBracket);
@@ -128,10 +128,9 @@ class MathBuffer {
                 let leftTemp = temp.substr(0, a - leftSide.length);
                 let rightTemp = temp.substr(a + 1 + rightSide.length);
 
-                if (leftSide.length > 0)
-                    leftSide += "*";
+                leftSide = leftSide.Length == 0 ? "1" : leftSide;
 
-                temp = leftTemp + leftSide + "[" + rightSide + "]" + rightTemp;
+                temp = leftTemp + "[" + leftSide + ";" + rightSide + "]" + rightTemp;
             }
             else if (temp.charAt(a) == POW) {
                 let leftSide = LeftSide(temp, a, true);
@@ -146,7 +145,7 @@ class MathBuffer {
             }
         }
 
-        temp = temp.replace("[", "Math.sqrt(").replace("]", ")").replace("<", "Math.pow(").replace(">", ")");
+        temp = temp.replace(";", "*Math.sqrt(").replace("[","").replace("]", ")").replace("<", "Math.pow(").replace(">", ")");
 
         return temp;
     }
@@ -162,6 +161,7 @@ class MathBuffer {
         }
         catch
         {
+            console.log("Error "+this.ChangeToFunction());
             return "Błąd";
         }
 
