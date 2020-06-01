@@ -1,6 +1,7 @@
 
 const SQRT = '√';
 const POW = '^';
+const PI = 'π';
 
 const LeftSide = (text, startIndex, withBracket = false) => {
     const validChars = "1234567890.,;";
@@ -51,7 +52,7 @@ const RightSide = (text, startIndex, withBracket = false) => {
 const GetBracketContentLeft = (text, startIndex, withBracket = false) => {
     let bracketId = 0;
 
-    for (let a = startIndex; a > 0; a--) {
+    for (let a = startIndex; a >= 0; a--) {
         if (text.charAt(a) == ')' || text.charAt(a) == ']' || text.charAt(a) == '>')
             bracketId++;
         else if (text.charAt(a) == '(' || text.charAt(a) == '[' || text.charAt(a) == '<') {
@@ -87,7 +88,7 @@ class MathBuffer {
     buffer = "";
 
     Add(text) {
-        const validChars = `1234567890()+-*x/${SQRT}${POW}.`;
+        const validChars = `1234567890()+-*x/${SQRT}${POW}.${PI}`;
 
         if (validChars.includes(text)) {
             if (this.buffer.length > 1) {
@@ -137,9 +138,6 @@ class MathBuffer {
                 let rightSide = RightSide(temp, a, true);
                 let leftTemp = temp.substr(0, a - leftSide.length);
                 let rightTemp = temp.substr(a + 1 + rightSide.length);
-
-                if (leftSide.length > 0)
-                    leftSide += "*";
 
                 temp = leftTemp + "<" + leftSide + "," + rightSide + ">" + rightTemp;
             }
