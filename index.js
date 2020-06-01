@@ -151,58 +151,6 @@ class MathBuffer {
         return temp;
     }
 
-    ChangeSqrtToFunction(text = "") {
-        let temp = text.length == 0 ? this.buffer : text;
-        temp = temp.replace('x', '*');
-
-        while (true) {
-            if (temp.includes(SQRT)) {
-                let currentIndex = temp.indexOf(SQRT);
-                let leftSide = LeftSide(temp, currentIndex, true);
-                let rightSide = RightSide(temp, currentIndex, true);
-                let leftTemp = temp.substr(0, currentIndex - leftSide.length);
-                let rightTemp = temp.substr(currentIndex + 1 + rightSide.length);
-
-                if (leftSide.length > 0)
-                    leftSide += "*";
-
-                temp = leftTemp + leftSide + "[" + rightSide + "]" + rightTemp;
-            }
-            else
-                break;
-        }
-
-        temp = temp.replace("[", "Math.sqrt(").replace("]", ")");
-
-        return temp;
-    }
-
-    ChangePowToFunction(text = "") {
-        let temp = text.length == 0 ? this.buffer : text;
-        temp = temp.replace('x', '*');
-
-        while (true) {
-            if (temp.includes(POW)) {
-                let currentIndex = temp.indexOf(POW);
-                let leftSide = LeftSide(temp, currentIndex, true);
-                let rightSide = RightSide(temp, currentIndex, true);
-                let leftTemp = temp.substr(0, currentIndex - leftSide.length);
-                let rightTemp = temp.substr(currentIndex + 1 + rightSide.length);
-
-                if (leftSide.length > 0)
-                    leftSide += "*";
-
-                temp = leftTemp + "[" + leftSide + "," + rightSide + "]" + rightTemp;
-            }
-            else
-                break;
-        }
-
-        temp = temp.replace("[", "Math.pow(").replace("]", ")");
-
-        return temp;
-    }
-
     Eval() {
         const lastChar = this.buffer.charAt(this.buffer.length - 1);
 
@@ -210,7 +158,7 @@ class MathBuffer {
             this.buffer = this.buffer.substr(0, this.buffer.length - 1);
 
         try {
-            return eval(this.ChangeSqrtToFunction(this.ChangePowToFunction()));
+            return eval(this.ChangeToFunction());
         }
         catch
         {
