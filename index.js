@@ -92,7 +92,7 @@ class MathBuffer {
 
         if (validChars.includes(text)) {
             if (this.buffer.length > 1) {
-                let leftSide = LeftSide(this.buffer, this.buffer.left);
+                let leftSide = LeftSide(this.buffer, this.buffer.length);
                 let lastChar = this.buffer.charAt(this.buffer.length - 1);
 
                 if (text == "." && leftSide.includes("."))
