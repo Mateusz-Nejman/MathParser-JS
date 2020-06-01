@@ -4,9 +4,9 @@ const POW = '^';
 const PI = 'π';
 
 const LeftSide = (text, startIndex, withBracket = false) => {
-    const validChars = "1234567890.,;";
+    const validChars = "1234567890.,;'";
 
-    if (text.charAt(startIndex - 1) == ')' || text.charAt(startIndex - 1) == ']' || text.charAt(startIndex - 1) == '>') {
+    if (text.charAt(startIndex - 1) == ')' || text.charAt(startIndex - 1) == ']' || text.charAt(startIndex - 1) == '>' || text.charAt(startIndex - 1) == '}') {
         return GetBracketContentLeft(text, startIndex, withBracket);
     }
     else {
@@ -27,9 +27,9 @@ const LeftSide = (text, startIndex, withBracket = false) => {
 }
 
 const RightSide = (text, startIndex, withBracket = false) => {
-    const validChars = "1234567890.,;";
+    const validChars = "1234567890.,;'";
 
-    if (text.charAt(startIndex + 1) == '(' || text.charAt(startIndex + 1) == '[' || text.charAt(startIndex + 1) == '<') {
+    if (text.charAt(startIndex + 1) == '(' || text.charAt(startIndex + 1) == '[' || text.charAt(startIndex + 1) == '<' || text.charAt(startIndex + 1) == '{') {
         return GetBracketContentRight(text, startIndex, withBracket);
     }
     else {
@@ -53,9 +53,9 @@ const GetBracketContentLeft = (text, startIndex, withBracket = false) => {
     let bracketId = 0;
 
     for (let a = startIndex; a >= 0; a--) {
-        if (text.charAt(a) == ')' || text.charAt(a) == ']' || text.charAt(a) == '>')
+        if (text.charAt(a) == ')' || text.charAt(a) == ']' || text.charAt(a) == '>' || text.charAt(a) == '}')
             bracketId++;
-        else if (text.charAt(a) == '(' || text.charAt(a) == '[' || text.charAt(a) == '<') {
+        else if (text.charAt(a) == '(' || text.charAt(a) == '[' || text.charAt(a) == '<' || text.charAt(a) == '{') {
             bracketId--;
             if (bracketId == 0)
                 return text.substr(a + (withBracket ? 0 : 1), startIndex - a - (withBracket ? 0 : 2));
@@ -70,9 +70,9 @@ const GetBracketContentRight = (text, startIndex, withBracket = false) => {
     let bracketId = 0;
 
     for (let a = startIndex; a < text.length; a++) {
-        if (text.charAt(a) == '(' || text.charAt(a) == '[' || text.charAt(a) == '<')
+        if (text.charAt(a) == '(' || text.charAt(a) == '[' || text.charAt(a) == '<' || text.charAt(a) == '{')
             bracketId++;
-        else if (text.charAt(a) == ')' || text.charAt(a) == ']' || text.charAt(a) == '>') {
+        else if (text.charAt(a) == ')' || text.charAt(a) == ']' || text.charAt(a) == '>' || text.charAt(a) == '}') {
             bracketId--;
             if (bracketId == 0)
                 return text.substr(startIndex + (withBracket ? 1 : 2), a - startIndex - (withBracket ? 0 : 2));
@@ -88,7 +88,7 @@ class MathBuffer {
     buffer = "";
 
     Add(text) {
-        const validChars = `1234567890()+-*x/${SQRT}${POW}.${PI}`;
+        const validChars = `1234567890()+-*x/${SQRT}${POW}.${PI}%`;
 
         if (validChars.includes(text)) {
             if (this.buffer.length > 1) {
@@ -120,7 +120,7 @@ class MathBuffer {
 
     ChangeToFunction(text = "") {
         let temp = text.length == 0 ? this.buffer : text;
-        temp = temp.replace('x', '*');
+        temp = temp.replace('x', '*').replace(PI, Math.PI);
 
         for (let a = 0; a < temp.length; a++) {
             if (temp.charAt(a) == SQRT) {
@@ -141,27 +141,59 @@ class MathBuffer {
 
                 temp = leftTemp + "<" + leftSide + "," + rightSide + ">" + rightTemp;
             }
+            else if (temp.charAt(a) == '%') {
+                let leftSide = LeftSide(temp, a, true);
+                let leftTemp = temp.substr(0, a - leftSide.length);
+                let rightTemp = temp.substr(a + 1);
+                let val = "100";
+
+                if (a >= leftSide.length + 1) {
+                    val = LeftSide(temp, a - leftSide.length - 1, true);
+                }
+
+                temp = leftTemp + "{" + leftSide + "'" + val + "}" + rightTemp;
+            }
         }
 
-        temp = temp.replace(";", "*Math.sqrt(").replace("[","").replace("]", ")").replace("<", "Math.pow(").replace(">", ")");
+        temp = temp.replace(";", "*Math.sqrt(").replace("[", "").replace("]", ")").replace("<", "Math.pow(").replace(">", ")").replace("{", "(").replace("}", ")").replace("'", "/100*");
 
         return temp;
     }
 
-    Eval() {
-        const lastChar = this.buffer.charAt(this.buffer.length - 1);
+    Eval(dontChangeBuffer = false) {
+        if (dontChangeBuffer) {
+            let temp = this.buffer;
+            const lastChar = temp.charAt(temp.length - 1);
 
-        if (this.signs.includes(lastChar))
-            this.buffer = this.buffer.substr(0, this.buffer.length - 1);
+            if (this.signs.includes(lastChar))
+                temp = temp.substr(0, temp.length - 1);
 
-        try {
-            return eval(this.ChangeToFunction());
+            try {
+                console.log(this.ChangeToFunction(temp));
+                return eval(this.ChangeToFunction(temp));
+            }
+            catch
+            {
+                console.log("Error " + this.ChangeToFunction(temp));
+                return "Błąd";
+            }
         }
-        catch
-        {
-            console.log("Error "+this.ChangeToFunction());
-            return "Błąd";
+        else {
+            const lastChar = this.buffer.charAt(this.buffer.length - 1);
+
+            if (this.signs.includes(lastChar))
+                this.buffer = this.buffer.substr(0, this.buffer.length - 1);
+
+            try {
+                return eval(this.ChangeToFunction());
+            }
+            catch
+            {
+                console.log("Error " + this.ChangeToFunction());
+                return "Błąd";
+            }
         }
+
 
     }
 }
