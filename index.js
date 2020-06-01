@@ -146,7 +146,7 @@ class MathBuffer {
             }
         }
 
-        temp = temp.replace("[", "Math.Sqrt(").replace("]", ")").replace("<", "Math.Pow(").replace(">", ")");
+        temp = temp.replace("[", "Math.sqrt(").replace("]", ")").replace("<", "Math.pow(").replace(">", ")");
 
         return temp;
     }
