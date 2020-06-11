@@ -126,7 +126,6 @@ class MathBuffer {
 
     ChangeToFunction(text = "") {
         let temp = text.length == 0 ? this.buffer : text;
-        temp = temp.replace('x', '*').replace(PI, Math.PI);
 
         for (let a = 0; a < temp.length; a++) {
             if (temp.charAt(a) == SQRT) {
@@ -149,19 +148,53 @@ class MathBuffer {
             }
             else if (temp.charAt(a) == '%') {
                 let leftSide = LeftSide(temp, a, true);
+                const sign = temp.substr(a - leftSide.length-1,1);
                 let leftTemp = temp.substr(0, a - leftSide.length);
                 let rightTemp = temp.substr(a + 1);
                 let val = "100";
+
+                
 
                 if (a >= leftSide.length + 1) {
                     val = LeftSide(temp, a - leftSide.length - 1, true);
                 }
 
-                temp = leftTemp + "{" + leftSide + "'" + val + "}" + rightTemp;
+                /*
+                +: a * (1 + (a / 100 * b))
+                -: a * (1 - (a / 100 * b))
+                *: a * 1 / 100 * b
+                /: a * 1 / 100 / b
+                a = leftSide
+                b = val
+                +: leftSide + (leftSide / 100 * val)
+                -: leftSide - (leftSide / 100 * val)
+                *: (leftSide / 100 * val)
+                /: (leftSide / 100 / val)
+                */
+               let firstPart = "";
+               let secondPart = "";
+
+               if(sign == "+" || sign == "/")
+               {
+                   firstPart = ``;
+                   secondPart = `(${leftSide} / 100 * ${val})`;
+               }
+               else if (sign == "*" || sign == "/" || sign == "x")
+               {
+                   firstPart = "";
+                   secondPart = `1 / 100 ${sign} ${val}`;
+               }
+               else
+               {
+                   firstPart = `${leftSide}`;
+                   secondPart = '';
+               }
+
+                temp = leftTemp + firstPart + secondPart + rightTemp;
             }
         }
 
-        temp = temp.replace(";", "*Math.sqrt(").replace("[", "").replace("]", ")").replace("<", "Math.pow(").replace(">", ")").replace("{", "(").replace("}", ")").replace("'", "/100*");
+        temp = temp.replace(/;/gi, "*Math.sqrt(").replace(/\[/gi, "").replace(/\]/gi, ")").replace(/</gi, "Math.pow(").replace(/>/gi, ")").replace(/{/gi, "(").replace(/}/gi, ")").replace(/'/gi, "/100*").replace(/x/gi,"*").replace(/π/gi, Math.PI);
 
         return temp;
     }
@@ -175,12 +208,10 @@ class MathBuffer {
                 temp = temp.substr(0, temp.length - 1);
 
             try {
-                console.log(this.ChangeToFunction(temp));
                 return eval(this.ChangeToFunction(temp));
             }
             catch
             {
-                console.log("Error " + this.ChangeToFunction(temp));
                 return "Error";
             }
         }
@@ -195,7 +226,6 @@ class MathBuffer {
             }
             catch
             {
-                console.log("Error " + this.ChangeToFunction());
                 return "Error";
             }
         }
@@ -204,4 +234,4 @@ class MathBuffer {
     }
 }
 
-export { SQRT, POW, LeftSide, RightSide, GetBracketContentLeft, GetBracketContentRight, MathBuffer }
+export { SQRT, POW, PI, LeftSide, RightSide, GetBracketContentLeft, GetBracketContentRight, MathBuffer }
